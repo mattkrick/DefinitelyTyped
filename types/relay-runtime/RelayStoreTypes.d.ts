@@ -1,30 +1,34 @@
 // Using `enum` here to create a distinct type and `const` to ensure it doesn’t leave any generated code.
 // tslint:disable-next-line:no-const-enum
-import {DataID, Disposable, Variables} from "./RelayRuntimeTypes";
+import { DataID, Disposable, Variables } from "./RelayRuntimeTypes";
 import {
-  CEnvironment,
-  CFragmentMap,
-  CFragmentSpecResolver, CNormalizationSelector, COperationDescriptor,
-  CReaderSelector, CRelayContext,
-  CSnapshot, CUnstableEnvironmentCore
+    CEnvironment,
+    CFragmentMap,
+    CFragmentSpecResolver,
+    CNormalizationSelector,
+    COperationDescriptor,
+    CReaderSelector,
+    CRelayContext,
+    CSnapshot,
+    CUnstableEnvironmentCore,
 } from "./RelayCombinedEnvironmentTypes";
-import {RelayObservable} from "./RelayObservable";
-import {GraphQLTaggedNode} from "./RelayModernGraphQLTag";
-import {ReaderFragment, ReaderSelectableNode} from "./ReaderNode";
+import { RelayObservable } from "./RelayObservable";
+import { GraphQLTaggedNode } from "./RelayModernGraphQLTag";
+import { ReaderFragment, ReaderSelectableNode } from "./ReaderNode";
 import {
-  NormalizationLinkedField,
-  NormalizationScalarField,
-  NormalizationSelectableNode,
-  NormalizationSplitOperation
+    NormalizationLinkedField,
+    NormalizationScalarField,
+    NormalizationSelectableNode,
+    NormalizationSplitOperation,
 } from "./NormalizationNode";
-import {GraphQLResponse, PayloadData, PayloadError, UploadableMap} from "./RelayNetworkTypes";
-import {ConcreteRequest} from "./RelayConcreteNode";
-import {Record} from "./RelayCombinedEnvironmentTypes"
-import {RelayInMemoryRecordSource as RecordSource} from "./RelayInMemoryRecordSource";
+import { GraphQLResponse, PayloadData, PayloadError, UploadableMap } from "./RelayNetworkTypes";
+import { ConcreteRequest } from "./RelayConcreteNode";
+import { Record } from "./RelayCombinedEnvironmentTypes";
+import { RelayInMemoryRecordSource as RecordSource } from "./RelayInMemoryRecordSource";
 
 export type FragmentReference = never;
 
-type TEnvironment = Environment;
+type TEnvironment = IEnvironment;
 type TFragment = ReaderFragment;
 type TGraphQLTaggedNode = GraphQLTaggedNode;
 type TReaderNode = ReaderSelectableNode;
@@ -37,24 +41,31 @@ export type OperationDescriptor = COperationDescriptor<TReaderNode, TNormalizati
 export type RelayContext = CRelayContext<TEnvironment>;
 export type ReaderSelector = CReaderSelector<TReaderNode>;
 export type OwnedReaderSelector = {
-  owner: OperationDescriptor | null;
-  selector: ReaderSelector;
+    owner: OperationDescriptor | null;
+    selector: ReaderSelector;
 };
 export type NormalizationSelector = CNormalizationSelector<TNormalizationNode>;
 export type Snapshot = CSnapshot<TReaderNode, OperationDescriptor>;
-export type UnstableEnvironmentCore = CUnstableEnvironmentCore<TEnvironment, TFragment, TGraphQLTaggedNode, TReaderNode, TNormalizationNode, TRequest, TReaderSelector>;
+export type UnstableEnvironmentCore = CUnstableEnvironmentCore<
+    TEnvironment,
+    TFragment,
+    TGraphQLTaggedNode,
+    TReaderNode,
+    TNormalizationNode,
+    TRequest,
+    TReaderSelector
+>;
 export interface FragmentSpecResolver extends CFragmentSpecResolver<TRequest> {}
-
 
 /**
  * A read/write interface for accessing and updating graph data.
  */
 
 export interface MutableRecordSource extends RecordSource {
-  clear(): void,
-  delete(dataID: DataID): void,
-  remove(dataID: DataID): void,
-  set(dataID: DataID, record: Record): void,
+    clear(): void;
+    delete(dataID: DataID): void;
+    remove(dataID: DataID): void;
+    set(dataID: DataID, record: Record): void;
 }
 /**
  * An interface for keeping multiple views of data consistent across an
@@ -62,56 +73,56 @@ export interface MutableRecordSource extends RecordSource {
  */
 
 export interface Store {
-  /**
-   * Get a read-only view of the store's internal RecordSource.
-   */
-  getSource(): RecordSource,
+    /**
+     * Get a read-only view of the store's internal RecordSource.
+     */
+    getSource(): RecordSource;
 
-  /**
-   * Determine if the selector can be resolved with data in the store (i.e. no
-   * fields are missing).
-   */
-  check(selector: NormalizationSelector): boolean,
+    /**
+     * Determine if the selector can be resolved with data in the store (i.e. no
+     * fields are missing).
+     */
+    check(selector: NormalizationSelector): boolean;
 
-  /**
-   * Read the results of a selector from in-memory records in the store.
-   * Optionally takes an owner, corresponding to the operation that
-   * owns this selector (fragment).
-   */
-  lookup(selector: ReaderSelector, owner?: OperationDescriptor | null): Snapshot,
+    /**
+     * Read the results of a selector from in-memory records in the store.
+     * Optionally takes an owner, corresponding to the operation that
+     * owns this selector (fragment).
+     */
+    lookup(selector: ReaderSelector, owner?: OperationDescriptor | null): Snapshot;
 
-  /**
-   * Notify subscribers (see `subscribe`) of any data that was published
-   * (`publish()`) since the last time `notify` was called.
-   */
-  notify(): void,
+    /**
+     * Notify subscribers (see `subscribe`) of any data that was published
+     * (`publish()`) since the last time `notify` was called.
+     */
+    notify(): void;
 
-  /**
-   * Publish new information (e.g. from the network) to the store, updating its
-   * internal record source. Subscribers are not immediately notified - this
-   * occurs when `notify()` is called.
-   */
-  publish(source: RecordSource): void,
+    /**
+     * Publish new information (e.g. from the network) to the store, updating its
+     * internal record source. Subscribers are not immediately notified - this
+     * occurs when `notify()` is called.
+     */
+    publish(source: RecordSource): void;
 
-  /**
-   * Ensure that all the records necessary to fulfill the given selector are
-   * retained in-memory. The records will not be eligible for garbage collection
-   * until the returned reference is disposed.
-   */
-  retain(selector: NormalizationSelector): Disposable,
+    /**
+     * Ensure that all the records necessary to fulfill the given selector are
+     * retained in-memory. The records will not be eligible for garbage collection
+     * until the returned reference is disposed.
+     */
+    retain(selector: NormalizationSelector): Disposable;
 
-  /**
-   * Subscribe to changes to the results of a selector. The callback is called
-   * when `notify()` is called *and* records have been published that affect the
-   * selector results relative to the last `notify()`.
-   */
-  subscribe(snapshot: Snapshot, callback: (snapshot: Snapshot) => void): Disposable,
+    /**
+     * Subscribe to changes to the results of a selector. The callback is called
+     * when `notify()` is called *and* records have been published that affect the
+     * selector results relative to the last `notify()`.
+     */
+    subscribe(snapshot: Snapshot, callback: (snapshot: Snapshot) => void): Disposable;
 
-  /**
-   * The method should disable garbage collection until
-   * the returned reference is disposed.
-   */
-  holdGC(): Disposable,
+    /**
+     * The method should disable garbage collection until
+     * the returned reference is disposed.
+     */
+    holdGC(): Disposable;
 }
 /**
  * A type that accepts a callback and schedules it to run at some future time.
@@ -127,28 +138,28 @@ export type Scheduler = (a: () => void) => void;
  */
 
 export interface RecordProxy {
-  copyFieldsFrom(source: RecordProxy): void;
-  getDataID(): DataID;
-  getLinkedRecord(name: string, args?: Variables): RecordProxy | null;
-  getLinkedRecords(name: string, args?: Variables): ReadonlyArray<RecordProxy | null> | null;
-  getOrCreateLinkedRecord(name: string, typeName: string, args?: Variables): RecordProxy;
-  getType(): string;
-  getValue(name: string, args?: Variables): any;
-  setLinkedRecord(record: RecordProxy, name: string, args?: Variables): RecordProxy;
-  setLinkedRecords(
-    records: Array<RecordProxy | null> | undefined | null,
-    name: string,
-    args?: Variables
-  ): RecordProxy;
-  setValue(value: any, name: string, args?: Variables): RecordProxy;
+    copyFieldsFrom(source: RecordProxy): void;
+    getDataID(): DataID;
+    getLinkedRecord(name: string, args?: Variables): RecordProxy | null;
+    getLinkedRecords(name: string, args?: Variables): ReadonlyArray<RecordProxy | null> | null;
+    getOrCreateLinkedRecord(name: string, typeName: string, args?: Variables): RecordProxy;
+    getType(): string;
+    getValue(name: string, args?: Variables): any;
+    setLinkedRecord(record: RecordProxy, name: string, args?: Variables): RecordProxy;
+    setLinkedRecords(
+        records: Array<RecordProxy | null> | undefined | null,
+        name: string,
+        args?: Variables
+    ): RecordProxy;
+    setValue(value: any, name: string, args?: Variables): RecordProxy;
 }
 
 export interface ReadOnlyRecordProxy {
-  getDataID(): DataID,
-  getLinkedRecord(name: string, args?: Variables): RecordProxy | null;
-  getLinkedRecords(name: string, args?: Variables): ReadonlyArray<RecordProxy | null> | null;
-  getType(): string,
-  getValue(name: string, args?: Variables): any;
+    getDataID(): DataID;
+    getLinkedRecord(name: string, args?: Variables): RecordProxy | null;
+    getLinkedRecords(name: string, args?: Variables): ReadonlyArray<RecordProxy | null> | null;
+    getType(): string;
+    getValue(name: string, args?: Variables): any;
 }
 /**
  * An interface for imperatively getting/setting properties of a `RecordSource`. This interface
@@ -158,15 +169,15 @@ export interface ReadOnlyRecordProxy {
  */
 
 export interface RecordSourceProxy {
-  create(dataID: DataID, typeName: string): RecordProxy;
-  delete(dataID: DataID): void;
-  get(dataID: DataID): RecordProxy | null;
-  getRoot(): RecordProxy;
+    create(dataID: DataID, typeName: string): RecordProxy;
+    delete(dataID: DataID): void;
+    get(dataID: DataID): RecordProxy | null;
+    getRoot(): RecordProxy;
 }
 
 export interface ReadOnlyRecordSourceProxy {
-  get(dataID: DataID): RecordProxy | null;
-  getRoot(): ReadOnlyRecordProxy,
+    get(dataID: DataID): RecordProxy | null;
+    getRoot(): ReadOnlyRecordProxy;
 }
 /**
  * Extends the RecordSourceProxy interface with methods for accessing the root
@@ -174,66 +185,76 @@ export interface ReadOnlyRecordSourceProxy {
  */
 
 export interface RecordSourceSelectorProxy {
-  create(dataID: DataID, typeName: string): RecordProxy;
-  delete(dataID: DataID): void;
-  get(dataID: DataID): RecordProxy | null;
-  getRoot(): RecordProxy;
-  getRootField(fieldName: string): RecordProxy | null;
-  getPluralRootField(fieldName: string): RecordProxy[] | null;
+    create(dataID: DataID, typeName: string): RecordProxy;
+    delete(dataID: DataID): void;
+    get(dataID: DataID): RecordProxy | null;
+    getRoot(): RecordProxy;
+    getRootField(fieldName: string): RecordProxy | null;
+    getPluralRootField(fieldName: string): RecordProxy[] | null;
 }
 /**
  * The public API of Relay core. Represents an encapsulated environment with its
  * own in-memory cache.
  */
 
-export interface Environment extends CEnvironment<TEnvironment, TFragment, TGraphQLTaggedNode, TReaderNode, TNormalizationNode, TRequest, TPayload, TReaderSelector> {
-  /**
-   * Apply an optimistic update to the environment. The mutation can be reverted
-   * by calling `dispose()` on the returned value.
-   */
-  applyUpdate(optimisticUpdate: OptimisticUpdate): Disposable,
+export interface IEnvironment
+    extends CEnvironment<
+        TEnvironment,
+        TFragment,
+        TGraphQLTaggedNode,
+        TReaderNode,
+        TNormalizationNode,
+        TRequest,
+        TPayload,
+        TReaderSelector
+    > {
+    /**
+     * Apply an optimistic update to the environment. The mutation can be reverted
+     * by calling `dispose()` on the returned value.
+     */
+    applyUpdate(optimisticUpdate: OptimisticUpdate): Disposable;
 
-  /**
-   * Commit an updater to the environment. This mutation cannot be reverted and
-   * should therefore not be used for optimistic updates. This is mainly
-   * intended for updating fields from client schema extensions.
-   */
-  commitUpdate(updater: StoreUpdater): void,
+    /**
+     * Commit an updater to the environment. This mutation cannot be reverted and
+     * should therefore not be used for optimistic updates. This is mainly
+     * intended for updating fields from client schema extensions.
+     */
+    commitUpdate(updater: StoreUpdater): void;
 
-  /**
-   * Commit a payload to the environment using the given operation selector.
-   */
-  commitPayload(operationDescriptor: OperationDescriptor, payload: PayloadData): void,
+    /**
+     * Commit a payload to the environment using the given operation selector.
+     */
+    commitPayload(operationDescriptor: OperationDescriptor, payload: PayloadData): void;
 
-  /**
-   * Get the environment's internal Store.
-   */
-  getStore(): Store,
+    /**
+     * Get the environment's internal Store.
+     */
+    getStore(): Store;
 
-  /**
-   * Read the results of a selector from in-memory records in the store.
-   * Optionally takes an owner, corresponding to the operation that
-   * owns this selector (fragment).
-   */
-  lookup(selector: ReaderSelector, owner?: OperationDescriptor | null): CSnapshot<TReaderNode, OperationDescriptor>,
+    /**
+     * Read the results of a selector from in-memory records in the store.
+     * Optionally takes an owner, corresponding to the operation that
+     * owns this selector (fragment).
+     */
+    lookup(selector: ReaderSelector, owner?: OperationDescriptor | null): CSnapshot<TReaderNode, OperationDescriptor>;
 
-  /**
-   * Returns an Observable of GraphQLResponse resulting from executing the
-   * provided Mutation operation, the result of which is then normalized and
-   * committed to the publish queue along with an optional optimistic response
-   * or updater.
-   *
-   * Note: Observables are lazy, so calling this method will do nothing until
-   * the result is subscribed to:
-   * environment.executeMutation({...}).subscribe({...}).
-   */
-  executeMutation(config: {
-    operation: OperationDescriptor;
-    optimisticUpdater?: SelectorStoreUpdater;
-    optimisticResponse?: object;
-    updater?: SelectorStoreUpdater;
-    uploadables?: UploadableMap;
-  }): RelayObservable<GraphQLResponse>,
+    /**
+     * Returns an Observable of GraphQLResponse resulting from executing the
+     * provided Mutation operation, the result of which is then normalized and
+     * committed to the publish queue along with an optional optimistic response
+     * or updater.
+     *
+     * Note: Observables are lazy, so calling this method will do nothing until
+     * the result is subscribed to:
+     * environment.executeMutation({...}).subscribe({...}).
+     */
+    executeMutation(config: {
+        operation: OperationDescriptor;
+        optimisticUpdater?: SelectorStoreUpdater;
+        optimisticResponse?: object;
+        updater?: SelectorStoreUpdater;
+        uploadables?: UploadableMap;
+    }): RelayObservable<GraphQLResponse>;
 }
 /**
  * The results of reading data for a fragment. This is similar to a `Selector`,
@@ -241,11 +262,11 @@ export interface Environment extends CEnvironment<TEnvironment, TFragment, TGrap
  */
 
 export type FragmentPointer = {
-  __id: DataID;
-  __fragments: {
-    [fragmentName: string]: Variables;
-  };
-  __fragmentOwner: OperationDescriptor | null;
+    __id: DataID;
+    __fragments: {
+        [fragmentName: string]: Variables;
+    };
+    __fragmentOwner: OperationDescriptor | null;
 };
 /**
  * The partial shape of an object with a '...Fragment @module(name: "...")'
@@ -253,9 +274,9 @@ export type FragmentPointer = {
  */
 
 export type ModuleImportPointer = {
-  readonly __fragmentPropName: string | undefined | null;
-  readonly __module_component: {};
-  readonly $fragmentRefs: {};
+    readonly __fragmentPropName: string | undefined | null;
+    readonly __module_component: {};
+    readonly $fragmentRefs: {};
 };
 /**
  * A callback for resolving a Selector from a source.
@@ -263,15 +284,15 @@ export type ModuleImportPointer = {
 
 export type AsyncLoadCallback = (loadingState: LoadingState) => void;
 export type LoadingState = {
-  status: "aborted" | "complete" | "error" | "missing";
-  error?: Error;
+    status: "aborted" | "complete" | "error" | "missing";
+    error?: Error;
 };
 /**
  * A map of records affected by an update operation.
  */
 
 export type UpdatedRecords = {
-  [dataID: string]: boolean;
+    [dataID: string]: boolean;
 };
 /**
  * A function that updates a store (via a proxy) given the results of a "handle"
@@ -279,7 +300,7 @@ export type UpdatedRecords = {
  */
 
 export type Handler = {
-  update: (store: RecordSourceProxy, fieldPayload: HandleFieldPayload) => void;
+    update: (store: RecordSourceProxy, fieldPayload: HandleFieldPayload) => void;
 };
 /**
  * A payload that is used to initialize or update a "handle" field with
@@ -287,11 +308,11 @@ export type Handler = {
  */
 
 export type HandleFieldPayload = {
-  readonly args: Variables;
-  readonly dataID: DataID;
-  readonly fieldKey: string;
-  readonly handle: string;
-  readonly handleKey: string;
+    readonly args: Variables;
+    readonly dataID: DataID;
+    readonly fieldKey: string;
+    readonly handle: string;
+    readonly handleKey: string;
 };
 /**
  * A payload that represents data necessary to process the results of an object
@@ -309,12 +330,12 @@ export type HandleFieldPayload = {
  */
 
 export type ModuleImportPayload = {
-  readonly data: PayloadData;
-  readonly dataID: DataID;
-  readonly operationReference: {};
-  readonly path: ReadonlyArray<string>;
-  readonly typeName: string;
-  readonly variables: Variables;
+    readonly data: PayloadData;
+    readonly dataID: DataID;
+    readonly operationReference: {};
+    readonly path: ReadonlyArray<string>;
+    readonly typeName: string;
+    readonly variables: Variables;
 };
 /**
  * Data emitted after processing a Defer or Stream node during normalization
@@ -323,18 +344,18 @@ export type ModuleImportPayload = {
  */
 
 export type DeferPlaceholder = {
-  readonly kind: "defer";
-  readonly label: string;
-  readonly path: ReadonlyArray<string>;
-  readonly selector: NormalizationSelector;
-  readonly typeName: string;
+    readonly kind: "defer";
+    readonly label: string;
+    readonly path: ReadonlyArray<string>;
+    readonly selector: NormalizationSelector;
+    readonly typeName: string;
 };
 export type StreamPlaceholder = {
-  readonly kind: "stream";
-  readonly label: string;
-  readonly path: ReadonlyArray<string>;
-  readonly selector: NormalizationSelector;
-  readonly typeName: string;
+    readonly kind: "stream";
+    readonly label: string;
+    readonly path: ReadonlyArray<string>;
+    readonly selector: NormalizationSelector;
+    readonly typeName: string;
 };
 export type IncrementalDataPlaceholder = DeferPlaceholder | StreamPlaceholder;
 /**
@@ -345,8 +366,8 @@ export type IncrementalDataPlaceholder = DeferPlaceholder | StreamPlaceholder;
  */
 
 export type OperationLoader = {
-  get: (reference: {}) => NormalizationSplitOperation | undefined | null;
-  load: (reference: {}) => Promise<NormalizationSplitOperation | undefined | null>;
+    get: (reference: {}) => NormalizationSplitOperation | undefined | null;
+    load: (reference: {}) => Promise<NormalizationSplitOperation | undefined | null>;
 };
 /**
  * A function that receives a proxy over the store and may trigger side-effects
@@ -360,10 +381,7 @@ export type StoreUpdater = (store: RecordSourceProxy) => void;
  * second argument of the response object of the mutation.
  */
 
-export type SelectorStoreUpdater<T = any> = (
-  store: RecordSourceSelectorProxy,
-  data: T
-) => void;
+export type SelectorStoreUpdater<T = any> = (store: RecordSourceSelectorProxy, data: T) => void;
 /**
  * A set of configs that can be used to apply an optimistic update into the
  * store.
@@ -371,40 +389,60 @@ export type SelectorStoreUpdater<T = any> = (
  * publish queue.
  */
 
-export type OptimisticUpdate = {
-  storeUpdater: StoreUpdater;
-} | {
-  selectorStoreUpdater: SelectorStoreUpdater | undefined | null;
-  operation: OperationDescriptor;
-  response: Object | undefined | null;
-} | {
-  source: RecordSource;
-  fieldPayloads?: Array<HandleFieldPayload> | null;
-};
+export type OptimisticUpdate =
+    | {
+          storeUpdater: StoreUpdater;
+      }
+    | {
+          selectorStoreUpdater: SelectorStoreUpdater | undefined | null;
+          operation: OperationDescriptor;
+          response: Object | undefined | null;
+      }
+    | {
+          source: RecordSource;
+          fieldPayloads?: Array<HandleFieldPayload> | null;
+      };
 /**
  * A set of handlers that can be used to provide substitute data for missing
  * fields when reading a selector from a source.
  */
 
-export type MissingFieldHandler = {
-  kind: "scalar";
-  handle: (field: NormalizationScalarField, record: Record | undefined | null, args: Variables, store: ReadOnlyRecordSourceProxy) => {};
-} | {
-  kind: "linked";
-  handle: (field: NormalizationLinkedField, record: Record | undefined | null, args: Variables, store: ReadOnlyRecordSourceProxy) => DataID | undefined | null;
-} | {
-  kind: "pluralLinked";
-  handle: (field: NormalizationLinkedField, record: Record | undefined | null, args: Variables, store: ReadOnlyRecordSourceProxy) => Array<DataID | undefined | null> | undefined | null;
-};
+export type MissingFieldHandler =
+    | {
+          kind: "scalar";
+          handle: (
+              field: NormalizationScalarField,
+              record: Record | undefined | null,
+              args: Variables,
+              store: ReadOnlyRecordSourceProxy
+          ) => {};
+      }
+    | {
+          kind: "linked";
+          handle: (
+              field: NormalizationLinkedField,
+              record: Record | undefined | null,
+              args: Variables,
+              store: ReadOnlyRecordSourceProxy
+          ) => DataID | undefined | null;
+      }
+    | {
+          kind: "pluralLinked";
+          handle: (
+              field: NormalizationLinkedField,
+              record: Record | undefined | null,
+              args: Variables,
+              store: ReadOnlyRecordSourceProxy
+          ) => Array<DataID | undefined | null> | undefined | null;
+      };
 /**
  * The results of normalizing a query.
  */
 
 export type RelayResponsePayload = {
-  incrementalPlaceholders: Array<IncrementalDataPlaceholder> | undefined | null;
-  fieldPayloads: Array<HandleFieldPayload> | undefined | null;
-  moduleImportPayloads: Array<ModuleImportPayload> | undefined | null;
-  source: MutableRecordSource;
-  errors: Array<PayloadError> | undefined | null;
+    incrementalPlaceholders: Array<IncrementalDataPlaceholder> | undefined | null;
+    fieldPayloads: Array<HandleFieldPayload> | undefined | null;
+    moduleImportPayloads: Array<ModuleImportPayload> | undefined | null;
+    source: MutableRecordSource;
+    errors: Array<PayloadError> | undefined | null;
 };
-

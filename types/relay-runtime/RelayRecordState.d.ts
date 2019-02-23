@@ -1,1 +1,1 @@
-export type RecordState = 'EXISTENT' | 'NONEXISTENT' | 'UNKNOWN'
+export type RecordState = "EXISTENT" | "NONEXISTENT" | "UNKNOWN";

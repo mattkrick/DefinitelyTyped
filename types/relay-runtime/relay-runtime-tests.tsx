@@ -38,7 +38,7 @@ const network = Network.create(fetchQuery);
 const cache = new QueryResponseCache({size: 250, ttl: 60000});
 
 // ~~~~~~~~~~~~~~~~~~~~~
-// Environment
+// IEnvironment
 // ~~~~~~~~~~~~~~~~~~~~~
 const environment = new Environment({
     handlerProvider, // Can omit.

@@ -1,3 +1,5 @@
-import {Environment, StoreUpdater} from "./RelayStoreTypes";
+import { IEnvironment, StoreUpdater } from "./RelayStoreTypes";
 
-export function commitLocalUpdate(environment: Environment, updater: StoreUpdater): void;
+export function commitLocalUpdate(environment: IEnvironment, updater: StoreUpdater): void;
+
+export {commitLocalUpdate as CLU}

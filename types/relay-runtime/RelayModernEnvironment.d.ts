@@ -1,155 +1,155 @@
 import {
-  Environment,
-  MissingFieldHandler,
-  NormalizationSelector,
-  OperationDescriptor,
-  OperationLoader,
-  OptimisticUpdate,
-  ReaderSelector,
-  SelectorStoreUpdater,
-  Snapshot,
-  Store,
-  StoreUpdater
+    IEnvironment,
+    MissingFieldHandler,
+    NormalizationSelector,
+    OperationDescriptor,
+    OperationLoader,
+    OptimisticUpdate,
+    ReaderSelector,
+    SelectorStoreUpdater,
+    Snapshot,
+    Store,
+    StoreUpdater,
 } from "./RelayStoreTypes";
-import {RelayObservable} from "./RelayObservable";
-import {CacheConfig, Disposable} from "./RelayRuntimeTypes";
-import {HandlerProvider} from "./RelayDefaultHandlerProvider";
-import {GraphQLResponse, Network, PayloadData, PayloadError, UploadableMap} from "./RelayNetworkTypes";
+import { RelayObservable } from "./RelayObservable";
+import { CacheConfig, Disposable } from "./RelayRuntimeTypes";
+import { HandlerProvider } from "./RelayDefaultHandlerProvider";
+import { GraphQLResponse, Network, PayloadData, PayloadError, UploadableMap } from "./RelayNetworkTypes";
 
 export type EnvironmentConfig = {
-  readonly configName?: string;
-  readonly handlerProvider?: HandlerProvider;
-  readonly operationLoader?: OperationLoader;
-  readonly network: Network;
-  readonly store: Store;
-  readonly missingFieldHandlers?: ReadonlyArray<MissingFieldHandler>;
+    readonly configName?: string;
+    readonly handlerProvider?: HandlerProvider;
+    readonly operationLoader?: OperationLoader;
+    readonly network: Network;
+    readonly store: Store;
+    readonly missingFieldHandlers?: ReadonlyArray<MissingFieldHandler>;
 };
 
-export class RelayModernEnvironment implements Environment {
-  constructor(config: EnvironmentConfig)
-  unstable_internal: any
-  getStore(): Store
+export class RelayModernEnvironment implements IEnvironment {
+    constructor(config: EnvironmentConfig);
+    unstable_internal: any;
+    getStore(): Store;
 
-  getNetwork(): Network
+    getNetwork(): Network;
 
-  applyUpdate(optimisticUpdate: OptimisticUpdate): Disposable
+    applyUpdate(optimisticUpdate: OptimisticUpdate): Disposable;
 
-  revertUpdate(update: OptimisticUpdate): void
+    revertUpdate(update: OptimisticUpdate): void;
 
-  replaceUpdate(update: OptimisticUpdate, newUpdate: OptimisticUpdate): void
+    replaceUpdate(update: OptimisticUpdate, newUpdate: OptimisticUpdate): void;
 
-  applyMutation({
-                  operation,
-                  optimisticResponse,
-                  optimisticUpdater
-                }: {
-    operation: OperationDescriptor;
-    optimisticUpdater?: SelectorStoreUpdater | null;
-    optimisticResponse?: Object;
-  }): Disposable
+    applyMutation({
+        operation,
+        optimisticResponse,
+        optimisticUpdater,
+    }: {
+        operation: OperationDescriptor;
+        optimisticUpdater?: SelectorStoreUpdater | null;
+        optimisticResponse?: Object;
+    }): Disposable;
 
-  check(readSelector: NormalizationSelector): boolean
+    check(readSelector: NormalizationSelector): boolean;
 
-  commitPayload(operationDescriptor: OperationDescriptor, payload: PayloadData): void
+    commitPayload(operationDescriptor: OperationDescriptor, payload: PayloadData): void;
 
-  commitUpdate(updater: StoreUpdater): void
+    commitUpdate(updater: StoreUpdater): void;
 
-  lookup(readSelector: ReaderSelector, owner?: OperationDescriptor | undefined | null): Snapshot
+    lookup(readSelector: ReaderSelector, owner?: OperationDescriptor | undefined | null): Snapshot;
 
-  subscribe(snapshot: Snapshot, callback: (snapshot: Snapshot) => void): Disposable
+    subscribe(snapshot: Snapshot, callback: (snapshot: Snapshot) => void): Disposable;
 
-  retain(selector: NormalizationSelector): Disposable
+    retain(selector: NormalizationSelector): Disposable;
 
-  _checkSelectorAndHandleMissingFields(selector: NormalizationSelector, handlers: ReadonlyArray<MissingFieldHandler>): boolean
+    _checkSelectorAndHandleMissingFields(
+        selector: NormalizationSelector,
+        handlers: ReadonlyArray<MissingFieldHandler>
+    ): boolean;
 
-  /**
-   * Returns an Observable of GraphQLResponse resulting from executing the
-   * provided Query or Subscription operation, each result of which is then
-   * normalized and committed to the publish queue.
-   *
-   * Note: Observables are lazy, so calling this method will do nothing until
-   * the result is subscribed to: environment.execute({...}).subscribe({...}).
-   */
+    /**
+     * Returns an Observable of GraphQLResponse resulting from executing the
+     * provided Query or Subscription operation, each result of which is then
+     * normalized and committed to the publish queue.
+     *
+     * Note: Observables are lazy, so calling this method will do nothing until
+     * the result is subscribed to: environment.execute({...}).subscribe({...}).
+     */
 
+    execute({
+        operation,
+        cacheConfig,
+        updater,
+    }: {
+        operation: OperationDescriptor;
+        cacheConfig?: CacheConfig | null;
+        updater?: SelectorStoreUpdater | null;
+    }): RelayObservable<GraphQLResponse>;
 
-  execute({
-            operation,
-            cacheConfig,
-            updater
-          }: {
-    operation: OperationDescriptor;
-    cacheConfig?: CacheConfig | null;
-    updater?: SelectorStoreUpdater | null;
-  }): RelayObservable<GraphQLResponse>
+    /**
+     * Returns an Observable of GraphQLResponse resulting from executing the
+     * provided Mutation operation, the result of which is then normalized and
+     * committed to the publish queue along with an optional optimistic response
+     * or updater.
+     *
+     * Note: Observables are lazy, so calling this method will do nothing until
+     * the result is subscribed to:
+     * environment.executeMutation({...}).subscribe({...}).
+     */
 
-  /**
-   * Returns an Observable of GraphQLResponse resulting from executing the
-   * provided Mutation operation, the result of which is then normalized and
-   * committed to the publish queue along with an optional optimistic response
-   * or updater.
-   *
-   * Note: Observables are lazy, so calling this method will do nothing until
-   * the result is subscribed to:
-   * environment.executeMutation({...}).subscribe({...}).
-   */
+    executeMutation({
+        operation,
+        optimisticResponse,
+        optimisticUpdater,
+        updater,
+        uploadables,
+    }: {
+        operation: OperationDescriptor;
+        optimisticUpdater?: SelectorStoreUpdater | null;
+        optimisticResponse?: Object | null;
+        updater?: SelectorStoreUpdater | null;
+        uploadables?: UploadableMap | null;
+    }): RelayObservable<GraphQLResponse>;
 
+    /**
+     * @deprecated Use IEnvironment.execute().subscribe()
+     */
 
-  executeMutation({
-                    operation,
-                    optimisticResponse,
-                    optimisticUpdater,
-                    updater,
-                    uploadables
-                  }: {
-    operation: OperationDescriptor;
-    optimisticUpdater?: SelectorStoreUpdater | null;
-    optimisticResponse?: Object | null;
-    updater?: SelectorStoreUpdater | null;
-    uploadables?: UploadableMap | null;
-  }): RelayObservable<GraphQLResponse>
+    sendQuery({
+        cacheConfig,
+        onCompleted,
+        onError,
+        onNext,
+        operation,
+    }: {
+        cacheConfig?: CacheConfig | null;
+        onCompleted?: () => void | null;
+        onError?: (error: Error) => void | null;
+        onNext?: (payload: GraphQLResponse) => void | null;
+        operation: OperationDescriptor;
+    }): Disposable;
 
-  /**
-   * @deprecated Use Environment.execute().subscribe()
-   */
+    /**
+     * @deprecated Use IEnvironment.executeMutation().subscribe()
+     */
 
+    sendMutation({
+        onCompleted,
+        onError,
+        operation,
+        optimisticResponse,
+        optimisticUpdater,
+        updater,
+        uploadables,
+    }: {
+        onCompleted?: (errors: Array<PayloadError> | undefined | null) => void | null;
+        onError?: (error: Error) => void | null;
+        operation: OperationDescriptor;
+        optimisticUpdater?: SelectorStoreUpdater | null;
+        optimisticResponse?: Object;
+        updater?: SelectorStoreUpdater | null;
+        uploadables?: UploadableMap;
+    }): Disposable;
 
-  sendQuery({
-              cacheConfig,
-              onCompleted,
-              onError,
-              onNext,
-              operation
-            }: {
-    cacheConfig?: CacheConfig | null;
-    onCompleted?: () => void | null;
-    onError?: (error: Error) => void | null;
-    onNext?: (payload: GraphQLResponse) => void | null;
-    operation: OperationDescriptor;
-  }): Disposable
-
-  /**
-   * @deprecated Use Environment.executeMutation().subscribe()
-   */
-
-
-  sendMutation({
-                 onCompleted,
-                 onError,
-                 operation,
-                 optimisticResponse,
-                 optimisticUpdater,
-                 updater,
-                 uploadables
-               }: {
-    onCompleted?: (errors: Array<PayloadError> | undefined | null) => void | null;
-    onError?: (error: Error) => void | null;
-    operation: OperationDescriptor;
-    optimisticUpdater?: SelectorStoreUpdater | null;
-    optimisticResponse?: Object;
-    updater?: SelectorStoreUpdater | null;
-    uploadables?: UploadableMap;
-  }): Disposable
-
-  toJSON(): string
-
+    toJSON(): string;
 }
+
+export {RelayModernEnvironment as Environment}

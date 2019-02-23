@@ -1,18 +1,18 @@
 export type Disposable = {
-  dispose: () => void;
+    dispose: () => void;
 };
 export type DataID = string; // Variables
 
 export type Variables = {
-  [name: string]: any
+    [name: string]: any;
 };
 /**
  * Generated operation flow types are subtypes of this.
  */
 
 export type OperationType = {
-  readonly variables: Variables;
-  readonly response: {};
+    readonly variables: Variables;
+    readonly response: {};
 };
 /**
  * Settings for how a query response may be cached.
@@ -29,11 +29,11 @@ export type OperationType = {
  */
 
 export type CacheConfig = {
-  force?: boolean | null;
-  poll?: number | null;
-  liveConfigId?: string | null;
-  metadata?: {
-    [key: string]: {};
-  };
-  transactionId?: string | null;
+    force?: boolean | null;
+    poll?: number | null;
+    liveConfigId?: string | null;
+    metadata?: {
+        [key: string]: {};
+    };
+    transactionId?: string | null;
 };

@@ -1,31 +1,32 @@
-import {DataID} from "./RelayRuntimeTypes";
-import {Record, RecordMap} from "./RelayCombinedEnvironmentTypes";
-import {RecordState} from "./RelayRecordState";
-import {MutableRecordSource} from "./RelayStoreTypes";
+import { DataID } from "./RelayRuntimeTypes";
+import { Record, RecordMap } from "./RelayCombinedEnvironmentTypes";
+import { RecordState } from "./RelayRecordState";
+import { MutableRecordSource } from "./RelayStoreTypes";
 
 export class RelayInMemoryRecordSource implements MutableRecordSource {
-  constructor(records?: RecordMap)
+    constructor(records?: RecordMap);
 
-  clear(): void
+    clear(): void;
 
-  delete(dataID: DataID): void
+    delete(dataID: DataID): void;
 
-  get(dataID: DataID): Record | null
+    get(dataID: DataID): Record | null;
 
-  getRecordIDs(): Array<DataID>
+    getRecordIDs(): Array<DataID>;
 
-  getStatus(dataID: DataID): RecordState
+    getStatus(dataID: DataID): RecordState;
 
-  has(dataID: DataID): boolean
+    has(dataID: DataID): boolean;
 
-  load(dataID: DataID, callback: (error: Error | null, record: Record | null) => void): void
+    load(dataID: DataID, callback: (error: Error | null, record: Record | null) => void): void;
 
-  remove(dataID: DataID): void
+    remove(dataID: DataID): void;
 
-  set(dataID: DataID, record: Record): void
+    set(dataID: DataID, record: Record): void;
 
-  size(): number
+    size(): number;
 
-  toJSON(): string
-
+    toJSON(): string;
 }
+
+export {RelayInMemoryRecordSource as RecordSource}
